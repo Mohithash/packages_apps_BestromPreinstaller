@@ -1,0 +1,31 @@
+//
+// SPDX-FileCopyrightText: BestROM
+// SPDX-License-Identifier: Apache-2.0
+//
+
+android_app {
+    name: "BestromPreinstaller",
+
+    srcs: ["src/**/*.java"],
+
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    product_specific: true,
+
+    manifest: "AndroidManifest.xml",
+
+    required: ["privapp_allowlist_org.bestrom.preinstaller.xml"],
+
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+}
+
+prebuilt_etc {
+    name: "privapp_allowlist_org.bestrom.preinstaller.xml",
+    product_specific: true,
+    sub_dir: "permissions",
+    src: "privapp_allowlist_org.bestrom.preinstaller.xml",
+    filename_from_src: true,
+}

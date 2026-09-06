@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: BestROM
+# SPDX-License-Identifier: Apache-2.0
+
+# Components are only ever referenced from the manifest (receivers/service
+# started by the system), never from Java call sites, so R8 must be told not
+# to strip them.
+-keep class org.bestrom.preinstaller.** { *; }

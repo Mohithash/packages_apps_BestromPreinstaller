@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: BestROM
+     SPDX-License-Identifier: Apache-2.0
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.bestrom.preinstaller"
+    android:versionCode="1"
+    android:versionName="1.0">
+
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:label="BestROM Preinstaller"
+        android:directBootAware="false"
+        android:persistent="false"
+        android:hasCode="true">
+
+        <!--
+             No launcher activity: this app is invisible to the user, it only
+             installs the bundled APKs on first boot and then gets out of the way.
+        -->
+
+        <receiver
+            android:name=".BootCompletedReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!--
+             Receives the PendingIntent callback from PackageInstaller.Session#commit().
+             Not exported: only the system delivers this, targeted directly at us.
+        -->
+        <receiver
+            android:name=".InstallStatusReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
+            android:name=".PreinstallService"
+            android:enabled="true"
+            android:exported="false" />
+
+    </application>
+</manifest>
