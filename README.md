@@ -31,4 +31,11 @@ once it has been handled once, whether that means "we installed it" or "it
 was already installed by other means". This is what makes the whole thing
 stick: a user uninstall on a later boot will not be undone.
 
+"Handled" is decided by the install result, not by starting the install:
+`InstallStatusReceiver` writes the marker on success and on failures a retry
+cannot fix (wrong ABI, malformed or conflicting APK). A failure that a later
+boot could get past - no free space, or a session cut short by a reboot -
+leaves the marker unset, so the next boot tries once more rather than losing
+the app for the life of the install.
+
 See `src/org/bestrom/preinstaller/Preinstaller.java` for the implementation.

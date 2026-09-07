@@ -28,8 +28,9 @@ import java.util.List;
  * fully-removable user app via {@link PackageInstaller} - the same mechanism
  * Play Store or any installer app uses - unless it has already been handled
  * once. "Handled" is tracked per package name in a SharedPreferences marker
- * ({@code done_<packageName>}), set to true either after a successful
- * install hand-off or when the package is found to already be installed.
+ * ({@code done_<packageName>}), set to true when the package is found to be
+ * installed already, or by {@link InstallStatusReceiver} when an install
+ * finishes - successfully, or with a failure that retrying cannot fix.
  * That marker is the entire mechanism that makes this "removable preload":
  * once set, this class will never reinstall the package, so a user
  * uninstall sticks across reboots.
@@ -111,15 +112,12 @@ class Preinstaller {
 
         Log.i(TAG, "Installing " + packageName + " from " + apk.getAbsolutePath());
         installApk(apk, packageName);
-        // Mark done immediately once the session is handed off to the
-        // system: from this point on PackageInstaller owns the install, and
-        // InstallStatusReceiver only logs the outcome. We do not want to
-        // retry on every subsequent boot merely because the async install
-        // result hasn't landed yet, and a failed install should not be
-        // retried automatically either (it may fail again for a reason that
-        // needs a human, e.g. incompatible ABI) - the marker is intentionally
-        // "attempted", not "succeeded".
-        markDone(packageName);
+        // No marker here. PackageInstaller owns the install from this point
+        // and InstallStatusReceiver sets the marker from the real outcome:
+        // on success, and on the failures that would only fail again. A boot
+        // that runs out of storage or is cut short mid-install leaves the
+        // marker unset, so the next boot tries once more instead of burning
+        // the single attempt on a transient failure.
     }
 
     private boolean isInstalled(String packageName) {
@@ -136,7 +134,18 @@ class Preinstaller {
     }
 
     private void markDone(String packageName) {
-        prefs.edit().putBoolean(DONE_PREFIX + packageName, true).apply();
+        markDone(context, packageName);
+    }
+
+    /**
+     * Also called from {@link InstallStatusReceiver}, which is where an
+     * install that actually completed is recorded.
+     */
+    static void markDone(Context context, String packageName) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(DONE_PREFIX + packageName, true)
+                .apply();
     }
 
     private void installApk(File apk, String packageName) throws IOException {
