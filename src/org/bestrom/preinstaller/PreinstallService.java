@@ -37,6 +37,9 @@ public class PreinstallService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         executor.execute(() -> {
+            // The default-keyboard seed is not here: it runs synchronously in
+            // BootCompletedReceiver, before this service is even started, so
+            // the setup wizard is never up without a keyboard.
             try {
                 new Preinstaller(getApplicationContext()).run();
             } catch (Exception e) {

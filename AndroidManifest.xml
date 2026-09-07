@@ -10,6 +10,8 @@
 
     <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Seeds Settings.Secure.DEFAULT_INPUT_METHOD; see DefaultImeSeeder. -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
 
     <application
         android:label="BestROM Preinstaller"
